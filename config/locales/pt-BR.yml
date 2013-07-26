@@ -55,3 +55,4 @@ pt-BR:
   hr_columnbar_yaxis_label: "Quantidade de Tarefas"
   hr_stackedcolumnbar_title_label: "Responsáveis e suas respectivas tarefas por situação"
   hr_stackedcolumnbar_yaxis_label: "Quantidade de tarefas"
+  hr_status_tracked_title_label: "Tarefas por tipo e respectivas situações"

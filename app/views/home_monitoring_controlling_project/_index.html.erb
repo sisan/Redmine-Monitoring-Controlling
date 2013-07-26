@@ -1,117 +1,85 @@
 <!--
 Tasks by Statuses / Situação por Tarefas 
 -->
-<script type="text/javascript">
-$(function () {
-    var chart;
-    $(document).ready(function() {
-        chart = new Highcharts.Chart({
-			credits: {
-	 		  enabled: false
-			},
-            chart: {
-                renderTo: 'container',
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false
-            },
-            title: {
-                text: '<%=@project.name%>'
-            },
-            tooltip: {
-                formatter: function() {
-                    return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.y,0) +' <%=t :tasks_label%>';
-                }
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        color: '#000000',
-                        connectorColor: '#000000',
-                        formatter: function() {
-                            return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage,2) +' %';
-                        }
-                    }
-                }
-            },
-            series: [{
-                type: 'pie',
-                data: <%=@statuses.map{ |situacao| [situacao.name.to_s, situacao.totalissues.to_i]}.inspect.html_safe%>
-            }]
-        });
-    });
-    
-});
+
+
+
+
+
+<script type="text/javascript" charset="utf-8">
+				var chart;
+			$(document).ready(function() {
+				chart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'status-tracked-bar-chart',
+						type: 'bar'
+					},
+			     	credits: {
+			 		  enabled: false
+					},
+					scrollbar:{
+			            enabled: true
+			        },	
+					title: {
+						text: '<%=@project%> - <%=t :hr_status_tracked_title_label%>'
+					},
+					
+					xAxis: {
+						categories: [
+									<% @statusestrackeds.sort{|a,b| a.tracker_name <=> b.tracker_name}.group_by(&:tracker_name).each do |s, t| %>
+									 "<%= s %>",
+									<% end %>
+								    ]
+					},
+					
+					yAxis: {
+						title: {
+							text: '<%=t :hr_stackedcolumnbar_yaxis_label%>'
+						}
+					},
+					legend: {
+						backgroundColor: '#FFFFFF',
+						reversed: false,
+						y: -50
+					},
+					tooltip: {
+						formatter: function() {
+							return ''+
+								this.series.name +': '+ this.y +'';
+						}
+					},
+			        plotOptions: {
+			                series: {
+			                        cursor: 'pointer',
+			                        events: {
+			                                click: function(event) {
+			                                        // Log to console
+			                                        // console.log(event.point);
+			                                        // console.log(event.point.config.user_id);
+			                                        window.open('');
+			                                }
+			                        },
+			                        stacking: 'normal'
+			                }
+			        },
+						series: 
+					[
+					<% @statusestrackeds.group_by(&:tracker_name).each do |s, t| %>
+						<% t.each do |st| %>
+							{
+								name: '<%= st.status_name %>',
+					            data: [ <%= @statusestrackeds.select{|st1| st1.status_id == st.status_id}.map{|st2| "#{st2.tracker_name}|#{st2.status_tracked_count}"}.sort{|a,b| a.split('|').first <=> b.split('|').first}.map{|st3| st3.split('|').last + ','} %>]
+							}, 
+						<% end %>
+						<% break %>
+					<%end%>
+					]
+				});
+			});
 
 </script>
-<script type="text/javascript">
-var chart;
-$(document).ready(function() {
-	chart = new Highcharts.Chart({
-     	credits: {
- 		  enabled: false
-		},		
-		chart: {
-			renderTo: 'containerColumn',
-			type: 'column'
-		},
-		title: {
-			text: '<%=t :statuses_issue_label_title %>'
-		},
-		xAxis: {
-			categories: <%=@statuses.map{ |situacao| situacao.name.to_s}.inspect.html_safe%>,
-			labels: {enabled: false}
-		},
-		yAxis: {
-			min: 0,
-			title: {
-				text: '<%=t :tasks_label%> ',
-			}
-		},
-		legend: {
-			enabled: true
-		},
-		tooltip: {
-			formatter: function() {
-				return '<b>'+ this.series.name +'</b><br/>'+
-					'<%=t :tasks_label%> '+ Highcharts.numberFormat(this.y, 0);
-			}
-		},
-        series: [
-                <%@statuses.each do |cat|%>
-                {
-                        name: <%=cat.name.inspect.html_safe%>,
-                        data: [<%=cat.totalissues%>],
-                        cursor: 'pointer',
-                        events: {
-                                // Default action for (left) clicking the data
-                                click: function(point) {
-                                        window.open('../../projects/<%=@project.identifier%>/issues?set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=%3D&v%5Bstatus_id%5D%5B%5D=<%=cat.id%>&f%5B%5D=&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=author&c%5B%5D=assigned_to&c%5B%5D=start_date&c%5B%5D=due_date&c%5B%5D=spent_hours&c%5B%5D=done_ratio&group_by=');
-                                }
-                        },
-                   dataLabels: {
-                                                        enabled: true,
-                                                        rotation: -90,
-                                                        color: '#FFFFFF',
-                                                        align: 'right',
-                                                        x: -3,
-                                                        y: 10,
-                                                        formatter: function() {
-                                                                return this.y;
-                                                        },
-                                                        style: {
-                                                                font: 'normal 13px Verdana, sans-serif'
-                                                        }
-                                                }
-                  }<%if !(@statuses.last == cat)%>,<%end%>
-                 <%end%>
-                ]
-	});
-});
-</script>
+
+
 
 <!--
  Task Management / Gerenciamento de Tarefas
@@ -132,6 +100,9 @@ $(function () {
             },
             title: {
                 text: '<%=t :task_manageable_chart_title %>'
+            },
+            subtitle: {
+                text: '<%=@project%>'
             },
             tooltip: {
                 formatter: function() {
@@ -182,6 +153,9 @@ $(function () {
             title: {
                 text: '<%=t :task_manageable_chart_overdue_title %>'
             },
+            subtitle: {
+                text: '<%=@project%>'
+            },
             tooltip: {
                 formatter: function() {
                     return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.y,0)+ ' <%=t :tasksof_label%> '+<%= @managementissues.first.totalissues %>+' <%=t :manageable_label%>';
@@ -229,9 +203,9 @@ $(function () {
                 plotBorderWidth: null,
                 plotShadow: false
             },
-            title: {
-                text: '<%=@project.name%>'
-            },
+			title: {
+				text: '<%=@project.name%>: <%=t :categories_issue_label_title%>'
+			},
             tooltip: {
                 formatter: function() {
                     return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.y,0) +' <%=t :tasks_label%>';
@@ -270,10 +244,7 @@ $(document).ready(function() {
 			type: 'column'
 		},
 		title: {
-			text: '<%=@project.name%>'
-		},
-		subtitle: {
-			text: '<%=t :categories_issue_label_title%>'
+			text: '<%=@project.name%>: <%=t :categories_issue_label_title%>'
 		},
 		scrollbar:{
             enabled: false

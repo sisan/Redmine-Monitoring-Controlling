@@ -107,8 +107,32 @@ class HomeMonitoringControllingProjectController < ApplicationController
                                              order by 1;")
 
 
-
-
+    @statusestrackeds = []
+    Issue.select('t.name as tracker_name, ist.name as status, t.id as tracker_id, ist.id as status_id, count(*) as status_tracked_count').from('issues i').joins('inner join trackers t on i.tracker_id = t.id').joins('inner join issue_statuses ist on i.status_id = ist.id').where("i.project_id in (#{stringSqlProjectsSubProjects})").group('tracker_id, status_id').order(:tracker_id).each do |issue|
+      status_tracked = StatusTracked.new
+      status_tracked.tracker_name = issue.tracker_name
+      status_tracked.status_name = issue.status
+      status_tracked.tracker_id = issue.tracker_id
+      status_tracked.status_id = issue.status_id
+      status_tracked.status_tracked_count = issue.status_tracked_count
+      status_tracked.total_status_issues = Issue.where(:tracker_id => issue.tracker_id).where("project_id in (#{stringSqlProjectsSubProjects})").count
+      @statusestrackeds << status_tracked
+    end
+    
+    @statusestrackeds.group_by(&:tracker_name).each do |s, t|
+      (IssueStatus.all.map{|is| is.id} - t.map {|st| st.status_id}).each do |issue_status_id|
+        issue_status = IssueStatus.find(issue_status_id)
+        status_tracked = StatusTracked.new
+        status_tracked.tracker_name = s
+        status_tracked.status_name = issue_status.name
+        status_tracked.tracker_id = Tracker.find_by_name(s).id
+        status_tracked.status_id = issue_status.id
+        status_tracked.status_tracked_count = 0
+        status_tracked.total_status_issues = Issue.where(:tracker_id =>  status_tracked.tracker_id).where("project_id in (#{stringSqlProjectsSubProjects})").count
+        @statusestrackeds << status_tracked        
+      end
+    end
+    @statusestrackeds.sort!{|a,b| a.tracker_id <=> b.tracker_id}
 
   end
 

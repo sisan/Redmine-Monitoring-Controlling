@@ -51,14 +51,13 @@ Tasks by Statuses / Situação por Tarefas
 			        plotOptions: {
 			                series: {
 			                        cursor: 'pointer',
-			                        events: {
-			                                click: function(event) {
-			                                        // Log to console
-			                                        // console.log(event.point);
-			                                        // console.log(event.point.config.user_id);
-			                                        window.open('');
-			                                }
-			                        },
+                					point: {
+                    					events: {
+                        					click: function() {
+												window.open("/projects/ifb-aquisicoes/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
+                        					}
+                    					}
+                					},
 			                        stacking: 'normal'
 			                }
 			        },
@@ -68,7 +67,7 @@ Tasks by Statuses / Situação por Tarefas
 						<% t.each do |st| %>
 							{
 								name: '<%= st.status_name %>',
-					            data: [ <%= @statusestrackeds.select{|st1| st1.status_id == st.status_id}.map{|st2| "#{st2.tracker_name}|#{st2.status_tracked_count}"}.sort{|a,b| a.split('|').first <=> b.split('|').first}.map{|st3| st3.split('|').last + ','} %>]
+					            data: [ <%= @statusestrackeds.select{|st1| st1.status_id == st.status_id}.map{|st2| "#{st2.tracker_name}|#{st2.status_id}|#{st2.status_tracked_count}"}.sort{|a,b| a.split('|').first <=> b.split('|').first}.map{|st3| "{y:" + st3.split('|').last.to_s + ", status_id: " + IssueStatus.find(st3.split('|')[1]).id.to_s + ", tracker_id: " + Tracker.find_by_name(st3.split('|').first).id.to_s + "}," } %>]
 							}, 
 						<% end %>
 						<% break %>
@@ -78,8 +77,6 @@ Tasks by Statuses / Situação por Tarefas
 			});
 
 </script>
-
-
 
 <!--
  Task Management / Gerenciamento de Tarefas

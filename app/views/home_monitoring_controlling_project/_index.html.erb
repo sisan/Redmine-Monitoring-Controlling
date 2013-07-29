@@ -54,7 +54,7 @@ Tasks by Statuses / Situação por Tarefas
                 					point: {
                     					events: {
                         					click: function() {
-												window.open("/projects/ifb-aquisicoes/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
+												window.open("/projects/<%=params[:id]%>/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
                         					}
                     					}
                 					},

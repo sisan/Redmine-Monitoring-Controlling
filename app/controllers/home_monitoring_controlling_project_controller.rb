@@ -108,7 +108,7 @@ class HomeMonitoringControllingProjectController < ApplicationController
 
 
     @statusestrackeds = []
-    Issue.select('t.name as tracker_name, ist.name as status, t.id as tracker_id, ist.id as status_id, count(*) as status_tracked_count').from('issues i').joins('inner join trackers t on i.tracker_id = t.id').joins('inner join issue_statuses ist on i.status_id = ist.id').where("i.project_id in (#{stringSqlProjectsSubProjects})").group('tracker_id, status_id').order(:tracker_id).each do |issue|
+    Issue.select('t.name as tracker_name, ist.name as status, t.id as tracker_id, ist.id as status_id, count(*) as status_tracked_count').from('issues i').joins('inner join trackers t on i.tracker_id = t.id').joins('inner join issue_statuses ist on i.status_id = ist.id').where("i.project_id in (#{stringSqlProjectsSubProjects}) and tracker_id in (19,20)").group('tracker_id, status_id').order(:tracker_id).each do |issue|
       status_tracked = StatusTracked.new
       status_tracked.tracker_name = issue.tracker_name
       status_tracked.status_name = issue.status

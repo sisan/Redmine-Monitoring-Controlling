@@ -7,14 +7,14 @@
 
 <%= render :partial => '/mc_menu/mcmenu' %>
 
-<div id="status-tracked-charts" class="chart-box  first-chart-box">
-	<div class="chart-box-title">
-		<h2><%=t :statuses_issue_label_title %></h2>
-	</div>
-	<div id="status-tracked-bar-chart"></div>
-</div>
-
 <% if @totalIssues > 0  %>
+	<div id="status-tracked-charts" class="chart-box  first-chart-box">
+		<div class="chart-box-title">
+			<h2><%=t :statuses_issue_label_title %></h2>
+		</div>
+		<div id="status-tracked-bar-chart"></div>
+	</div>
+
 	<div class="chart-box">
 		<div class="chart-box-title">
 			<h2><%= t :categories_issue_label_title%></h2>

@@ -1,5 +1,7 @@
 = Monitoring & Controlling (M&C) - Redmine Plugin
 
+== PRDI - SGI ==
+
 M&C is a Redmine Plugin used as a chart tool to monitoring issues' project 
 
 == Website - Portuguese only

@@ -14,6 +14,7 @@ pt-BR:
   monitoring_controlling_project: "Monitoramento & Controle por Projeto"
   statuses_issue_label_title: "Situação das tarefas"
   categories_issue_label_title: "Tarefas por Tipo"
+  issue_status_by_project: "Projeto X Situação de Tarefas"
 
   task_management_label_title: "Gerenciamento das Tarefas"
   task_manageable_chart_title: "Tarefas Gerenciáveis"
@@ -55,4 +56,5 @@ pt-BR:
   hr_columnbar_yaxis_label: "Quantidade de Tarefas"
   hr_stackedcolumnbar_title_label: "Responsáveis e suas respectivas tarefas por situação"
   hr_stackedcolumnbar_yaxis_label: "Quantidade de tarefas"
-  hr_status_tracked_title_label: "Tarefas por tipo e respectivas situações"
+  hr_status_tracked_title_label: "Tipo de Tarefa por Situação"
+  hr_issue_status_by_project: "Projeto por Situação de Tarefas"

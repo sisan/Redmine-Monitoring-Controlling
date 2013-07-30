@@ -5,8 +5,115 @@ Tasks by Statuses / Situação por Tarefas
 
 
 
-
+<% if @projects_subprojects.count > 1 %>
 <script type="text/javascript" charset="utf-8">
+    		var chart;
+			var openedTasksId = "o";
+			var closedTasksId = "c";
+			
+			$(document).ready(function() {
+				
+				//Gerando variaveis em javascript para identificar os projetos.
+				<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.each do |project| %>
+					var <%= project.identifier.parameterize.underscore %> = "<%=project.identifier%>";
+				<% end %>
+				
+				chart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'status-vs-project-bar-chart',
+						type: 'bar',
+						height: <%=Project.where(:parent_id => @project.id).count%> * 60
+					},
+			     	credits: {
+			 		  enabled: false
+					},
+					scrollbar:{
+			            enabled: true
+			        },	
+					title: {
+						text: '<%=t :hr_issue_status_by_project%>'
+		            },
+		            subtitle: {
+		                text: '<%=@project%>'
+		            },
+					xAxis: {
+						categories: [
+									<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.each do |project| %>
+									 "<%= project.name %>",
+									<% end %>
+								    ],
+						labels: {
+			           		style: {
+                				color: '#525151',
+                				fontWeight: 'bold'
+            				}
+						}
+					},
+					
+					yAxis: {
+						title: {
+							text: '<%=t :hr_stackedcolumnbar_yaxis_label%>'
+						}
+					},
+					legend: {
+						backgroundColor: '#FFFFFF',
+						reversed: false,
+						y: -50
+					},
+					tooltip: {
+						formatter: function() {
+	                   		if (this.y === 0) {
+                        		return null;
+                    		} else {
+								return '' + this.series.name +': '+ this.y + '%';
+                    		}
+						}
+					},
+			        plotOptions: {
+			        	series: {
+			            	cursor: 'pointer',
+                			point: {
+                    			events: {
+                        			click: function() {
+										window.open("/projects/" + this.project_id + "/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=" + this.status +"&f[]=subproject_id&op[subproject_id]=*&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
+                        			}
+                    			}
+                			},
+			                stacking: 'normal'
+			        	},
+						bar: {
+							dataLabels: {
+  								formatter:function() {
+    								if(this.y != 0) {
+      									return this.y;
+    								}
+  								}
+							}
+						}
+			        },
+						series: 
+					[
+							{	
+								name: "<%=t :delivered_label%>",
+					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.map {|p| "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId},"} %>],
+								color: '#4572a7'
+							}, 
+							{
+								name: "<%=t :tobedelivered_label%>",
+					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.map {|p| "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId},"} %> ],
+								color: "#AA4643"
+							},
+					]
+				});
+				chart.chartBackground.css(
+    			{
+    				color: '#eeeeee',
+    			});
+			});
+</script>
+
+<% end %>
+<!-- <script type="text/javascript" charset="utf-8">
 				var chart;
 			$(document).ready(function() {
 				chart = new Highcharts.Chart({
@@ -21,9 +128,11 @@ Tasks by Statuses / Situação por Tarefas
 			            enabled: true
 			        },	
 					title: {
-						text: '<%=@project%> - <%=t :hr_status_tracked_title_label%>'
-					},
-					
+						text: '<%=t :hr_status_tracked_title_label%>'
+		            },
+		            subtitle: {
+		                text: '<%=@project%>'
+		            },
 					xAxis: {
 						categories: [
 									<% @statusestrackeds.sort{|a,b| a.tracker_name <=> b.tracker_name}.group_by(&:tracker_name).each do |s, t| %>
@@ -54,7 +163,7 @@ Tasks by Statuses / Situação por Tarefas
                 					point: {
                     					events: {
                         					click: function() {
-												window.open("/projects/<%=params[:id]%>/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
+												window.open("/projects/<%=params[:id]%>/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=subproject_id&op[subproject_id]=*&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
                         					}
                     					}
                 					},
@@ -74,10 +183,13 @@ Tasks by Statuses / Situação por Tarefas
 					<%end%>
 					]
 				});
+				chart.chartBackground.css({
+    					color: '#eeeeee'
+    			});
 			});
 
 </script>
-
+ -->
 <!--
  Task Management / Gerenciamento de Tarefas
 -->
@@ -128,8 +240,11 @@ $(function () {
                 data: <%=@managementissues.map{ |issue| [issue.typemanagement.to_s, issue.totalissues.to_i]}.inspect.html_safe%>
             }]
         });
-    });
-    
+		chart.chartBackground.css(
+	    {
+	    	color: '#eeeeee'
+	    });
+    });    
 });
 </script>
 
@@ -180,131 +295,102 @@ $(function () {
                 data: <%=@overdueissueschart.map{ |issue| [issue.typeissue.to_s, issue.totalissuedelayed.to_i]}.inspect.html_safe%>
             }]
         });
-    });
-    
+		chart.chartBackground.css(
+	    {
+	    	color: '#eeeeee'
+	    });
+    });    
 });
 
 </script>
 
-<script type="text/javascript">
-$(function () {
-    var chart;
-    $(document).ready(function() {
-        chart = new Highcharts.Chart({
-			credits: {
-	 		  enabled: false
-			},
-            chart: {
-                renderTo: 'categoryPie',
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false
-            },
-			title: {
-				text: '<%=@project.name%>: <%=t :categories_issue_label_title%>'
-			},
-            tooltip: {
-                formatter: function() {
-                    return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.y,0) +' <%=t :tasks_label%>';
-                }
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        color: '#000000',
-                        connectorColor: '#000000',
-                        formatter: function() {
-                            return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage,2) +' %';
-                        }
-                    }
-                }
-            },
-            series: [{
-                type: 'pie',
-                data: <%=@issuesbycategory.map{ |category| [category.name.to_s, category.totalbycategory.to_i]}.inspect.html_safe%>
-            }]
-        });
-    });
-    
-});
+
+
+<script type="text/javascript" charset="utf-8">
+				var chart;
+			$(document).ready(function() {
+				chart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'categoryStackedColumn',
+						type: 'bar'
+					},
+			     	credits: {
+			 		  enabled: false
+					},
+					scrollbar:{
+			            enabled: true
+			        },	
+					title: {
+						text: '<%=t :categories_issue_label_title%>'
+			            },
+			        subtitle: {
+			            text: '<%=@project%>'
+			        },
+					xAxis: {
+						categories: [
+			   				<% @issuesbycategory.each do |cat| %>
+   			     				<%= cat.name.to_s.inspect.html_safe %>,
+			   				<%end%>
+						]
+					},
+					
+					yAxis: {
+						title: {
+							text: '<%=t :hr_stackedcolumnbar_yaxis_label%>'
+						}
+					},
+					legend: {
+						backgroundColor: '#FFFFFF',
+						reversed: false,
+						y: -50
+					},
+					tooltip: {
+						formatter: function() {
+							return ''+
+								this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';
+						}
+					},
+			        plotOptions: {
+			                series: {
+			                        cursor: 'pointer',
+                					point: {
+                    					events: {
+                        					click: function() {
+												window.open("/projects/<%=params[:id]%>/issues?utf8=✓&set_filter=1&f[]=status_id&op[status_id]=%3D&v[status_id][]=" + this.status_id + "&f[]=tracker_id&op[tracker_id]=%3D&v[tracker_id][]=" + this.tracker_id + "&f[]=subproject_id&op[subproject_id]=*&f[]=&c[]=tracker&c[]=parent&c[]=status&c[]=priority&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=due_date&c[]=done_ratio&group_by=");
+                        					}
+                    					}
+                					},
+			                        stacking: 'normal'
+			                }
+			        },
+					series: [{
+						name: '<%=t :tobedelivered_label%>',
+						data: [
+					 	   	<% @issuesbycategory.each do |cat| %>
+		     			      <%= cat.totalundone %>,
+					        <%end%>
+						],
+						color: '#AA4643'
+				    	},{
+						name: '<%=t :delivered_label%>',
+						data: [
+						 	   <% @issuesbycategory.each do |cat| %>
+		         			      <%= cat.totaldone %>,
+			       		       <%end%>				  
+							],
+						color: '#4572A7'
+						}				
+					]
+				});
+				chart.chartBackground.css({
+    					color: '#eeeeee'
+    			});
+			});
+
 </script>
 
-<script type="text/javascript">
-var chart;
-$(document).ready(function() {
-	chart = new Highcharts.Chart({
-		chart: {
-			renderTo: 'categoryStackedColumn',
-			type: 'column'
-		},
-		title: {
-			text: '<%=@project.name%>: <%=t :categories_issue_label_title%>'
-		},
-		scrollbar:{
-            enabled: false
-        },
-     	credits: {
- 		  enabled: false
-		},
-		xAxis: {
-			categories: [
-			   <% @issuesbycategory.each do |cat| %>
-   			     <%= cat.name.to_s.inspect.html_safe %>,
-			   <%end%>
-			],
-			labels: {
-				rotation: -45,
-				align: 'right',
-				style: {
-					font: 'normal 13px Verdana, sans-serif'
-				}
-			}
-		},
-		yAxis: {
-			min: 0,
-			title: {
-				text: ''
-			}
-		},
-		legend: {
-			enabled: true,
-			reversed: true
-		},
-		tooltip: {
-			formatter: function() {
-				return ''+
-					this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';
-			}
-		},
-		plotOptions: {
-			column: {
-				stacking: 'percent'
-			}
-		},
-			series: [
-			{
-			name: '<%=t :tobedelivered_label%>',
-			data: [
-			 	   	<% @issuesbycategory.each do |cat| %>
-     			      <%= cat.totalundone %>,
-			        <%end%>
-				  ]	,
-					color: '#AA4643'
-		    },
-				{
-				name: '<%=t :delivered_label%>',
-				data: [
-				 	   <% @issuesbycategory.each do |cat| %>
-         			      <%= cat.totaldone %>,
-	       		       <%end%>				  
-				]	,
-					color: '#4572A7'
-			    }
-				
-		]
-	});
-});
-</script>
+
+
+
+
+

@@ -15,11 +15,11 @@ class HomeMonitoringControllingProjectController < ApplicationController
     #get projects and sub projects
     stringSqlProjectsSubProjects = tool.return_ids(@project.id)
     
-    @projects_subprojects = Project.find_by_sql("select * from projects where id in (#{stringSqlProjectsSubProjects});")
+    @projects_subprojects = Project.where("id in (#{stringSqlProjectsSubProjects})")
     @all_project_issues = Issue.find_by_sql("select * from issues where project_id in (#{stringSqlProjectsSubProjects});")
     
     # total issues from the project and subprojects
-    @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects]).count
+    @totalIssues = Issue.where(:project_id => stringSqlProjectsSubProjects.split(', ').map{|sp| sp.to_i}).count
     
     #get count of issues by category
     @issuesbycategory = IssueStatus.find_by_sql(["select trackers.name, trackers.position, count(*) as totalbycategory,
@@ -108,7 +108,7 @@ class HomeMonitoringControllingProjectController < ApplicationController
 
 
     @statusestrackeds = []
-    Issue.select('t.name as tracker_name, ist.name as status, t.id as tracker_id, ist.id as status_id, count(*) as status_tracked_count').from('issues i').joins('inner join trackers t on i.tracker_id = t.id').joins('inner join issue_statuses ist on i.status_id = ist.id').where("i.project_id in (#{stringSqlProjectsSubProjects}) and tracker_id in (19,20)").group('tracker_id, status_id').order(:tracker_id).each do |issue|
+    Issue.select('t.name as tracker_name, ist.name as status, t.id as tracker_id, ist.id as status_id, count(*) as status_tracked_count').from('issues i').joins('inner join trackers t on i.tracker_id = t.id').joins('inner join issue_statuses ist on i.status_id = ist.id').where("i.project_id in (#{stringSqlProjectsSubProjects})").group('tracker_id, status_id').order(:tracker_id).each do |issue|
       status_tracked = StatusTracked.new
       status_tracked.tracker_name = issue.tracker_name
       status_tracked.status_name = issue.status

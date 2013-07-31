@@ -13,6 +13,7 @@ pt-BR:
   project_module_monitoring_controlling_project: "Monitoramento & Controle por Projeto"
   monitoring_controlling_project: "Monitoramento & Controle por Projeto"
   statuses_issue_label_title: "Situação das tarefas"
+  no_sub_projects_found: "Nenhum subprojeto encontratdo"
   categories_issue_label_title: "Tarefas por Tipo"
   issue_status_by_project: "Projeto X Situação de Tarefas"
 

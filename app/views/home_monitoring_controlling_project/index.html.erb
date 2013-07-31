@@ -8,6 +8,8 @@
 <%= render :partial => '/mc_menu/mcmenu' %>
 
 <% if @totalIssues > 0  %>
+	
+
 	<div id="status-vs-project-charts" class="chart-box first-chart-box">
 		<div class="chart-box-title">
 			<h2><%=t :statuses_issue_label_title %></h2>
@@ -15,7 +17,7 @@
 		<% if @projects_subprojects.count > 1 %>
 			<div id="status-vs-project-bar-chart"></div>
 		<% else %>
-			
+				<div id="errorExplanation" style="margin-top: 60px;"><%=t :time_mgmt_error_no_issues_found_text %></div>
 		<% end %>
 		<!-- <div id="status-tracked-bar-chart"></div> -->
 	</div>
@@ -81,5 +83,5 @@
 		<div style="clear:both;"></div>
 	</div><!-- ./chart-box -->
 <% else %>
-	<div id="errorExplanation" style="margin-top: 60px;"><%=t :time_mgmt_error_no_issues_found_text %></div>
+	<div id="errorExplanation"><%=t :time_mgmt_error_no_issues_found_text %></div>
 <%end%>

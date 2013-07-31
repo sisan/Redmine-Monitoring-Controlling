@@ -4,7 +4,7 @@ Tasks by Statuses / Situação por Tarefas
 
 
 
-
+<%=%>
 <% if @projects_subprojects.count > 1 %>
 <script type="text/javascript" charset="utf-8">
     		var chart;
@@ -14,7 +14,7 @@ Tasks by Statuses / Situação por Tarefas
 			$(document).ready(function() {
 				
 				//Gerando variaveis em javascript para identificar os projetos.
-				<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.each do |project| %>
+				<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.each do |project| %>
 					var <%= project.identifier.parameterize.underscore %> = "<%=project.identifier%>";
 				<% end %>
 				
@@ -22,7 +22,7 @@ Tasks by Statuses / Situação por Tarefas
 					chart: {
 						renderTo: 'status-vs-project-bar-chart',
 						type: 'bar',
-						height: <%=Project.where(:parent_id => @project.id).count%> * 60
+						height: 250 + ((<%=Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.count%> - 1) * 55)
 					},
 			     	credits: {
 			 		  enabled: false
@@ -38,7 +38,7 @@ Tasks by Statuses / Situação por Tarefas
 		            },
 					xAxis: {
 						categories: [
-									<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.each do |project| %>
+									<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.each do |project| %>
 									 "<%= project.name %>",
 									<% end %>
 								    ],
@@ -95,12 +95,12 @@ Tasks by Statuses / Situação por Tarefas
 					[
 							{	
 								name: "<%=t :delivered_label%>",
-					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.map {|p| "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId},"} %>],
+					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId},"} %>],
 								color: '#4572a7'
 							}, 
 							{
 								name: "<%=t :tobedelivered_label%>",
-					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.map {|p| "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId},"} %> ],
+					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId},"} %> ],
 								color: "#AA4643"
 							},
 					]
@@ -312,7 +312,8 @@ $(function () {
 				chart = new Highcharts.Chart({
 					chart: {
 						renderTo: 'categoryStackedColumn',
-						type: 'bar'
+						type: 'bar',
+						height: 250 + ((<%=@issuesbycategory.count%> - 1) * 55)
 					},
 			     	credits: {
 			 		  enabled: false

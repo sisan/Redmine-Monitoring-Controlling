@@ -95,12 +95,18 @@ Tasks by Statuses / Situação por Tarefas
 					[
 							{	
 								name: "<%=t :delivered_label%>",
-					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId},"} %>],
+					            data: [ <% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| %>
+																<%= "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId}," %>
+															<%}%>
+														],
 								color: '#4572a7'
 							}, 
 							{
 								name: "<%=t :tobedelivered_label%>",
-					            data: [ <%= Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId},"} %> ],
+					            data: [ <% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| %>
+						 										<%= "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId}," %>
+															<%}%> 
+														],
 								color: "#AA4643"
 							},
 					]

@@ -2,10 +2,8 @@
 Tasks by Statuses / Situação por Tarefas 
 -->
 
+<% #if @projects_subprojects.count > 1 %>
 
-
-<%=%>
-<% if @projects_subprojects.count > 1 %>
 <script type="text/javascript" charset="utf-8">
     		var chart;
 			var openedTasksId = "o";
@@ -14,7 +12,7 @@ Tasks by Statuses / Situação por Tarefas
 			$(document).ready(function() {
 				
 				//Gerando variaveis em javascript para identificar os projetos.
-				<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.each do |project| %>
+				<% @projects_subprojects.each do |project| %>
 					var <%= project.identifier.parameterize.underscore %> = "<%=project.identifier%>";
 				<% end %>
 				
@@ -22,7 +20,7 @@ Tasks by Statuses / Situação por Tarefas
 					chart: {
 						renderTo: 'status-vs-project-bar-chart',
 						type: 'bar',
-						height: 250 + ((<%=Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.count%> - 1) * 55)
+						height: 250 + ((<%=@projects_subprojects.count%> - 1) * 55)
 					},
 			     	credits: {
 			 		  enabled: false
@@ -38,15 +36,20 @@ Tasks by Statuses / Situação por Tarefas
 		            },
 					xAxis: {
 						categories: [
-									<% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.each do |project| %>
-									 "<%= project.name %>",
+									<% @projects_subprojects.each do |project| %>
+									 "<%=project.name%>",
 									<% end %>
 								    ],
-						labels: {
-			           		style: {
-                				color: '#525151',
-                				fontWeight: 'bold'
-            				}
+						labels: {						       
+									formatter: function() {
+										var categoryLinks = {
+											<% @projects_subprojects.each do |project| %>
+											"<%=project.name%>": "/projects/<%=project.identifier%>?jump=redmine_monitoring_controlling",								   
+											<% end %>
+										};
+										return '<a href="'+ categoryLinks[this.value] +'">'+ this.value +'</a>';
+							},
+							useHTML: true
 						}
 					},
 					
@@ -93,22 +96,22 @@ Tasks by Statuses / Situação por Tarefas
 			        },
 						series: 
 					[
-							{	
-								name: "<%=t :delivered_label%>",
-					            data: [ <% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| %>
-																<%= "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId}," %>
-															<%}%>
-														],
-								color: '#4572a7'
-							}, 
 							{
 								name: "<%=t :tobedelivered_label%>",
-					            data: [ <% Project.where(:parent_id => @project.id).sort{|a,b| a.name <=> b.name}.select {|p| p.active?}.map {|p| %>
+					            data: [ <% @projects_subprojects.map {|p| %>
 						 										<%= "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId}," %>
 															<%}%> 
 														],
 								color: "#AA4643"
 							},
+							{	
+								name: "<%=t :delivered_label%>",
+					            data: [ <% @projects_subprojects.map {|p| %>
+																<%= "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId}," %>
+															<%}%>
+														],
+								color: '#4572a7'
+							}, 
 					]
 				});
 				chart.chartBackground.css(
@@ -118,7 +121,7 @@ Tasks by Statuses / Situação por Tarefas
 			});
 </script>
 
-<% end %>
+
 <!-- <script type="text/javascript" charset="utf-8">
 				var chart;
 			$(document).ready(function() {

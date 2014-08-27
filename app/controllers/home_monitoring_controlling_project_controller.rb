@@ -14,13 +14,13 @@ class HomeMonitoringControllingProjectController < ApplicationController
 
     #get projects and sub projects
     stringSqlProjectsSubProjects = tool.return_ids(@project.id)
-    
     @projects_subprojects = Project.where("id in (#{stringSqlProjectsSubProjects})")
     @all_project_issues = Issue.find_by_sql("select * from issues where project_id in (#{stringSqlProjectsSubProjects});")
     
     # total issues from the project and subprojects
-    @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects]).count
-    
+    #@totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects]).count
+    @totalIssues = Issue.where("project_id in (#{stringSqlProjectsSubProjects})").count 
+
     #get count of issues by category
     @issuesbycategory = IssueStatus.find_by_sql(["select trackers.name, trackers.position, count(*) as totalbycategory,
                                                 (select count(*) 
@@ -139,5 +139,6 @@ class HomeMonitoringControllingProjectController < ApplicationController
   private
   def find_project
     @project=Project.find(params[:id])
-  end    
+  end 
+     
 end

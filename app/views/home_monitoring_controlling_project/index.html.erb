@@ -14,14 +14,8 @@
 		<div class="chart-box-title">
 			<h2><%=t :statuses_issue_label_title %></h2>
 		</div>
-
-		<% if @projects_subprojects.count > 1 %>
-
 			<div id="status-vs-project-bar-chart"></div>
-		<% else %>
-				<div id="errorExplanation" style="margin-top: 60px;"><%=t :time_mgmt_error_no_issues_found_text %></div>
-		<% end %>
-		<!-- <div id="status-tracked-bar-chart"></div> -->
+			<!-- <div id="status-tracked-bar-chart"></div> -->
 	</div>
 
 	<div class="chart-box">

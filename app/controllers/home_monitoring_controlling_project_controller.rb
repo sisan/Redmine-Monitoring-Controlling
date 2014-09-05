@@ -14,7 +14,13 @@ class HomeMonitoringControllingProjectController < ApplicationController
 
     #get projects and sub projects
     stringSqlProjectsSubProjects = tool.return_ids(@project.id)
+    stringSqlProjectsSubProjectsActive = tool.return_ids_active(@project.id)
     @projects_subprojects = Project.where("id in (#{stringSqlProjectsSubProjects})")
+    
+    @projects_subprojects_active = Project.find_by_sql("select * from projects where id in (#{stringSqlProjectsSubProjectsActive}) order by lft")
+    #Project.where("id in (#{stringSqlProjectsSubProjectsActive})")
+    
+    @teste = stringSqlProjectsSubProjectsActive 
     @all_project_issues = Issue.find_by_sql("select * from issues where project_id in (#{stringSqlProjectsSubProjects});")
     
     # total issues from the project and subprojects
@@ -25,14 +31,14 @@ class HomeMonitoringControllingProjectController < ApplicationController
     @issuesbycategory = IssueStatus.find_by_sql(["select trackers.name, trackers.position, count(*) as totalbycategory,
                                                 (select count(*) 
                                                  from issues 
-                                                 where project_id in (#{stringSqlProjectsSubProjects})
+                                                 where project_id in (#{stringSqlProjectsSubProjectsActive})
                                                  and issues.tracker_id = trackers.id
                                                  and status_id in (select id from issue_statuses where is_closed = ?)
 
                                                 ) as totaldone,
                                                 (select count(*) 
                                                  from issues 
-                                                 where project_id in (#{stringSqlProjectsSubProjects})
+                                                 where project_id in (#{stringSqlProjectsSubProjectsActive})
                                                  and issues.tracker_id = trackers.id
                                                  and status_id in (select id from issue_statuses where is_closed = ?)
 
@@ -41,7 +47,7 @@ class HomeMonitoringControllingProjectController < ApplicationController
                                                 where projects_trackers.tracker_id = trackers.id 
                                                 and projects_trackers.project_id = issues.project_id
                                                 and issues.tracker_id = trackers.id
-                                                and projects_trackers.project_id in (#{stringSqlProjectsSubProjects}) 
+                                                and projects_trackers.project_id in (#{stringSqlProjectsSubProjectsActive}) 
                                                 group by trackers.id, trackers.name, trackers.position
                                                 order by 2;", true, false])
 

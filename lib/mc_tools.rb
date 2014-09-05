@@ -15,6 +15,11 @@ class McTools
   def subProjects(id)
      Project.find_by_sql("select * from projects where parent_id = #{id.to_i}")
   end
+  
+  # return just active subprojects ID 
+  def subProjectsActive(id)
+     Project.find_by_sql("select * from projects where parent_id = #{id.to_i} and status = 1")
+  end
     
   # return an array with the project and subprojects IDs
   def return_ids(id)       
@@ -23,6 +28,18 @@ class McTools
      subprojects = subProjects(id)
      subprojects.each do |project|     
       array.push(return_ids(project.id))
+     end
+      
+     return array.inspect.gsub("[","").gsub("]","").gsub("\\","").gsub("\"","")
+  end
+  
+  # return an array with the project and subprojects IDs just active
+  def return_ids_active(id)       
+     array = Array.new
+     array.push(id)  
+     subprojects = subProjectsActive(id)
+     subprojects.each do |project|     
+      array.push(project.id)
      end
       
      return array.inspect.gsub("[","").gsub("]","").gsub("\\","").gsub("\"","")

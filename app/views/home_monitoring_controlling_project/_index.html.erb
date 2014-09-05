@@ -12,7 +12,7 @@ Tasks by Statuses / Situação por Tarefas
 			$(document).ready(function() {
 				
 				//Gerando variaveis em javascript para identificar os projetos.
-				<% @projects_subprojects.each do |project| %>
+				<% @projects_subprojects_active.each do |project| %>
 					var <%= project.identifier.parameterize.underscore %> = "<%=project.identifier%>";
 				<% end %>
 				
@@ -20,7 +20,7 @@ Tasks by Statuses / Situação por Tarefas
 					chart: {
 						renderTo: 'status-vs-project-bar-chart',
 						type: 'bar',
-						height: 250 + ((<%=@projects_subprojects.count%> - 1) * 55)
+						height: 250 + ((<%=@projects_subprojects_active.count%> - 1) * 55)
 					},
 			     	credits: {
 			 		  enabled: false
@@ -36,15 +36,24 @@ Tasks by Statuses / Situação por Tarefas
 		            },
 					xAxis: {
 						categories: [
-									<% @projects_subprojects.each do |project| %>
-									 "<%=project.name%>",
+									<% @projects_subprojects_active.each do |project| %>
+										<% if project == @projects_subprojects_active.first %> 
+											"<h4><%=project.name%></h4>",
+										<% else %>
+											"<%=project.name%>",
+										<% end %>	
 									<% end %>
 								    ],
 						labels: {						       
 									formatter: function() {
 										var categoryLinks = {
-											<% @projects_subprojects.each do |project| %>
-											"<%=project.name%>": "/projects/<%=project.identifier%>?jump=redmine_monitoring_controlling",								   
+											<% @projects_subprojects_active.each do |project| %>
+												<% if project == @projects_subprojects_active.first %> 
+													"<h4><%=project.name%></h4>": "#",
+												<% else %>
+													"<%=project.name%>": "/projects/<%=project.identifier%>?jump=redmine_monitoring_controlling",
+												<% end %>
+																			   
 											<% end %>
 										};
 										return '<a href="'+ categoryLinks[this.value] +'">'+ this.value +'</a>';
@@ -98,7 +107,7 @@ Tasks by Statuses / Situação por Tarefas
 					[
 							{
 								name: "<%=t :tobedelivered_label%>",
-					            data: [ <% @projects_subprojects.map {|p| %>
+					            data: [ <% @projects_subprojects_active.map {|p| %>
 						 										<%= "{y:" + (McTools.new.returnTotalOfOpenTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfOpenTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: openedTasksId}," %>
 															<%}%> 
 														],
@@ -106,7 +115,7 @@ Tasks by Statuses / Situação por Tarefas
 							},
 							{	
 								name: "<%=t :delivered_label%>",
-					            data: [ <% @projects_subprojects.map {|p| %>
+					            data: [ <% @projects_subprojects_active.map {|p| %>
 																<%= "{y:" + (McTools.new.returnTotalOfClosedTasks(p.identifier) > 0 ? "#{(McTools.new.returnTotalOfClosedTasks(p.identifier).to_f * 100 / (McTools.new.returnTotalOfClosedTasks(p.identifier).to_f + McTools.new.returnTotalOfOpenTasks(p.identifier).to_f)).round(2).to_s}, " : "0, ") + "project_id: " + p.identifier.parameterize.underscore + ", status: closedTasksId}," %>
 															<%}%>
 														],
